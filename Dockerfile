@@ -1,4 +1,3 @@
-
 FROM python:3.11-slim AS builder
 
 WORKDIR /app
@@ -18,6 +17,7 @@ FROM python:3.11-slim
 ENV TZ=UTC
 WORKDIR /app
 
+
 RUN apt-get update && apt-get install -y \
     cron \
     tzdata \
@@ -30,12 +30,11 @@ COPY --from=builder /install /usr/local
 
 COPY . /app
 
-COPY cronjob /etc/cron.d/mycron
+COPY cron/2fa-cron /etc/cron.d/mycron
 RUN chmod 0644 /etc/cron.d/mycron
-RUN crontab /etc/cron.d/mycron
 
 RUN mkdir -p /data /cron && chmod -R 755 /data /cron
 
 EXPOSE 8080
-
-CMD cron && uvicorn main:app --host 0.0.0.0 --port 8080
+r
+CMD service cron start && uvicorn main:app --host 0.0.0.0 --port 8080
